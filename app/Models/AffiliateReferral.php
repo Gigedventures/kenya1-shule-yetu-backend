@@ -1,0 +1,2 @@
+<?php
+// AffiliateReferral.php

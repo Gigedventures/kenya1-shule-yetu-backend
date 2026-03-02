@@ -1,0 +1,2 @@
+<?php
+// CertificateController.php

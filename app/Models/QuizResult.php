@@ -1,0 +1,2 @@
+<?php
+// QuizResult.php

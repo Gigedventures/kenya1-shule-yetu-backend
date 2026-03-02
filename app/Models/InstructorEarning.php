@@ -1,0 +1,2 @@
+<?php
+// InstructorEarning.php
