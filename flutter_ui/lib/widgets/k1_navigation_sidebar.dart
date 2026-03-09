@@ -55,7 +55,7 @@ class _K1NavigationSidebarState extends State<K1NavigationSidebar> {
       icon: Icons.directions_bus_outlined,
       previewTitle: 'Bus tracker',
       previewSubtitle: 'Route 21 arriving in 5 mins',
-      assetPath: 'assets/previews/bus_preview.png',
+      assetPath: 'assets/previews/transport_preview.png',
     ),
     K1SidebarItem(
       label: 'Library',

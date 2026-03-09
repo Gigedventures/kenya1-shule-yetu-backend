@@ -63,7 +63,7 @@ class _K1SidebarWithPreviewState extends State<K1SidebarWithPreview> {
       label: 'Transport',
       previewTitle: 'Mini bus tracker',
       previewSubtitle: 'Route #21 is 5 min away',
-      assetPath: 'assets/previews/bus_preview.png',
+      assetPath: 'assets/previews/transport_preview.png',
       icon: Icons.directions_bus_outlined,
       accent: Color(0xFFBE7A00),
       busAnimation: true,
