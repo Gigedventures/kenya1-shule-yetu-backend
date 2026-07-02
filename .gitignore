@@ -17,3 +17,18 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+# Flutter / Dart junk
+**/.dart_tool/
+**/build/
+**/.packages
+
+# logs
+*.log
+
+# cache files
+*.cache
+*.dill
+
+# OS noise
+.DS_Store
+Thumbs.db
