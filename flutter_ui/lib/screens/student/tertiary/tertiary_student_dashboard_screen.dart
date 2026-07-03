@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 
 import '../../../data/mock_data.dart';
 import '../../../data/mock_users.dart';
+import '../../../models/transcript_models.dart';
+import '../../../services/transcript_service.dart';
 import '../../../widgets/k1_bottom_nav.dart';
 import '../../../widgets/k1_top_bar.dart';
 
@@ -79,7 +81,7 @@ class _TertiaryStudentDashboardScreenState extends State<TertiaryStudentDashboar
                                 },
                               ),
                               const _ExamsTab(),
-                              _ResultsTab(data: data),
+                              _ResultsTab(data: data, student: widget.student),
                               _TimetableTab(data: data),
                               const _AiTutorTab(),
                               const _FinanceTab(),
@@ -327,12 +329,18 @@ class _ExamsTab extends StatelessWidget {
 }
 
 class _ResultsTab extends StatelessWidget {
-  const _ResultsTab({required this.data});
+  const _ResultsTab({required this.data, required this.student});
 
   final SeniorData data;
+  final Student student;
 
   @override
   Widget build(BuildContext context) {
+    final transcriptService = TranscriptService(
+      baseUrl: 'http://localhost:8000/api',
+      tokenProvider: () async => null,
+    );
+
     return ListView(
       padding: const EdgeInsets.only(bottom: 16),
       children: [
@@ -342,8 +350,51 @@ class _ResultsTab extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         FilledButton(
-          onPressed: () {
-            // TODO(backend): route to transcript download endpoint.
+          onPressed: () async {
+            try {
+              final transcript = await transcriptService.getStudentTranscript(
+                student.id.toString(),
+              );
+              if (!context.mounted) return;
+              showDialog(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  backgroundColor: const Color(0xFF1A2438),
+                  title: const Text('Academic Transcript', style: TextStyle(color: Colors.white)),
+                  content: SizedBox(
+                    width: double.maxFinite,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Student: ${transcript.student.name ?? 'N/A'}',
+                            style: const TextStyle(color: Colors.white)),
+                        const SizedBox(height: 8),
+                        Text('Admission: ${transcript.student.admissionNo ?? 'N/A'}',
+                            style: TextStyle(color: Color(0xFFC4D2E6))),
+                        const SizedBox(height: 12),
+                        Text('Cumulative GPA: ${transcript.cumulativeAverage.toStringAsFixed(2)}',
+                            style: const TextStyle(color: Color(0xFF5EA3FF), fontWeight: FontWeight.w800)),
+                        const SizedBox(height: 8),
+                        Text('Total Terms: ${transcript.totalTerms}',
+                            style: const TextStyle(color: Color(0xFFC4D2E6))),
+                      ],
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(ctx).pop(),
+                      child: const Text('Close'),
+                    ),
+                  ],
+                ),
+              );
+            } catch (e) {
+              if (!context.mounted) return;
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+              );
+            }
           },
           style: FilledButton.styleFrom(
             backgroundColor: const Color(0xFF2A6CC4),

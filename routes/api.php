@@ -110,6 +110,18 @@ Route::middleware(['auth:sanctum', 'shule.tenancy'])->group(function () {
 
     /*
     |--------------------------------------------------------------
+    | Transcript
+    |--------------------------------------------------------------
+    */
+    Route::prefix('/v1/shule-yetu/transcripts')->group(function () {
+        Route::get('/students/{student}/transcript', [
+            \App\Http\Controllers\Api\V1\ShuleYetu\TranscriptController::class,
+            'studentTranscript'
+        ]);
+    });
+
+    /*
+    |--------------------------------------------------------------
     | Finance
     |--------------------------------------------------------------
     */
@@ -139,6 +151,46 @@ Route::middleware(['auth:sanctum', 'shule.tenancy'])->group(function () {
         Route::get('/reports/term-summary', [
             \App\Http\Controllers\Api\V1\ShuleYetu\Finance\ReportController::class,
             'termSummary'
+        ]);
+    });
+
+    /*
+    |--------------------------------------------------------------
+    | Communication
+    |--------------------------------------------------------------
+    */
+    Route::prefix('/v1/shule-yetu/communication')->group(function () {
+        Route::get('/threads', [
+            \App\Http\Controllers\Api\V1\ShuleYetu\Communication\MessageController::class,
+            'threads'
+        ]);
+        Route::get('/threads/{threadId}/messages', [
+            \App\Http\Controllers\Api\V1\ShuleYetu\Communication\MessageController::class,
+            'messages'
+        ]);
+        Route::post('/threads/{threadId}/messages', [
+            \App\Http\Controllers\Api\V1\ShuleYetu\Communication\MessageController::class,
+            'send'
+        ]);
+        Route::post('/messages/{messageId}/read', [
+            \App\Http\Controllers\Api\V1\ShuleYetu\Communication\MessageController::class,
+            'markRead'
+        ]);
+        Route::get('/announcements', [
+            \App\Http\Controllers\Api\V1\ShuleYetu\Communication\AnnouncementController::class,
+            'index'
+        ]);
+        Route::post('/announcements', [
+            \App\Http\Controllers\Api\V1\ShuleYetu\Communication\AnnouncementController::class,
+            'store'
+        ]);
+        Route::get('/contacts', [
+            \App\Http\Controllers\Api\V1\ShuleYetu\Communication\MessageController::class,
+            'contacts'
+        ]);
+        Route::post('/threads', [
+            \App\Http\Controllers\Api\V1\ShuleYetu\Communication\MessageController::class,
+            'createThread'
         ]);
     });
 
