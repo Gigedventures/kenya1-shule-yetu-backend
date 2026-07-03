@@ -194,4 +194,28 @@ Route::middleware(['auth:sanctum', 'shule.tenancy'])->group(function () {
         ]);
     });
 
+    /*
+    |--------------------------------------------------------------
+    | AI (K1 Engine)
+    |--------------------------------------------------------------
+    */
+    Route::prefix('/v1/shule-yetu/ai')->middleware(['auth:sanctum', 'shule.tenancy'])->group(function () {
+        Route::post('/students/{student}/predict', [
+            \App\Http\Controllers\Api\V1\ShuleYetu\Ai\AiController::class,
+            'predict'
+        ]);
+        Route::post('/students/{student}/risk', [
+            \App\Http\Controllers\Api\V1\ShuleYetu\Ai\AiController::class,
+            'risk'
+        ]);
+        Route::get('/students/{student}/competency-gaps', [
+            \App\Http\Controllers\Api\V1\ShuleYetu\Ai\AiController::class,
+            'competencyGaps'
+        ]);
+        Route::post('/students/{student}/learning-plan', [
+            \App\Http\Controllers\Api\V1\ShuleYetu\Ai\AiController::class,
+            'learningPlan'
+        ]);
+    });
+
 });
