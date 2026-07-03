@@ -9,54 +9,17 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 Route::get('/', function () {
-    return response()->json([
-        'status' => 'Kenya1 API running'
-    ]);
+    return response()->json(['status' => 'Kenya1 API running']);
 });
 
-/*
-|--------------------------------------------------------------------------
-| DEV AUTH (temporary, for setup & testing)
-|--------------------------------------------------------------------------
-*/
-Route::post('/v1/dev/login', [
-    \App\Http\Controllers\Api\V1\Auth\DevAuthController::class,
-    'login'
-]);
+Route::post('/v1/dev/login', [\App\Http\Controllers\Api\V1\Auth\DevAuthController::class, 'login']);
 
-/*
-|--------------------------------------------------------------------------
-| SHULE YETU – PROTECTED ROUTES
-|--------------------------------------------------------------------------
-*/
 Route::middleware(['auth:sanctum', 'shule.tenancy'])->group(function () {
 
-    /*
-    |--------------------------------------------------------------
-    | School
-    |--------------------------------------------------------------
-    */
-    Route::post('/v1/shule-yetu/school', [
-        \App\Http\Controllers\Api\V1\ShuleYetu\SchoolController::class, 'store'
-    ]);
-    Route::get('/v1/shule-yetu/school', [
-        \App\Http\Controllers\Api\V1\ShuleYetu\SchoolController::class, 'mySchool'
-    ]);
+    Route::post('/v1/shule-yetu/school', [\App\Http\Controllers\Api\V1\ShuleYetu\SchoolController::class, 'store']);
+    Route::get('/v1/shule-yetu/school', [\App\Http\Controllers\Api\V1\ShuleYetu\SchoolController::class, 'mySchool']);
+    Route::post('/v1/shule-yetu/setup-cbc-full', [\App\Http\Controllers\Api\V1\ShuleYetu\CbcSetupController::class, 'setup']);
 
-    /*
-    |--------------------------------------------------------------
-    | CBC + JSS + SENIOR FULL SETUP
-    |--------------------------------------------------------------
-    */
-    Route::post('/v1/shule-yetu/setup-cbc-full', [
-        \App\Http\Controllers\Api\V1\ShuleYetu\CbcSetupController::class, 'setup'
-    ]);
-
-    /*
-    |--------------------------------------------------------------
-    | Exams
-    |--------------------------------------------------------------
-    */
     Route::prefix('/v1/shule-yetu/exams')->group(function () {
         Route::get('/types', [\App\Http\Controllers\Api\V1\ShuleYetu\Exams\ExamTypeController::class, 'index']);
         Route::post('/types', [\App\Http\Controllers\Api\V1\ShuleYetu\Exams\ExamTypeController::class, 'store']);
@@ -70,22 +33,10 @@ Route::middleware(['auth:sanctum', 'shule.tenancy'])->group(function () {
         Route::get('/students/{student}/term-results', [\App\Http\Controllers\Api\V1\ShuleYetu\Exams\ExamResultController::class, 'studentResults']);
     });
 
-    /*
-    |--------------------------------------------------------------
-    | Transcript
-    |--------------------------------------------------------------
-    */
     Route::prefix('/v1/shule-yetu/transcripts')->group(function () {
-        Route::get('/students/{student}/transcript', [
-            \App\Http\Controllers\Api\V1\ShuleYetu\TranscriptController::class, 'studentTranscript'
-        ]);
+        Route::get('/students/{student}/transcript', [\App\Http\Controllers\Api\V1\ShuleYetu\TranscriptController::class, 'studentTranscript']);
     });
 
-    /*
-    |--------------------------------------------------------------
-    | Finance
-    |--------------------------------------------------------------
-    */
     Route::prefix('/v1/shule-yetu/finance')->group(function () {
         Route::get('/structures', [\App\Http\Controllers\Api\V1\ShuleYetu\Finance\FeeStructureController::class, 'index']);
         Route::post('/structures', [\App\Http\Controllers\Api\V1\ShuleYetu\Finance\FeeStructureController::class, 'store']);
@@ -95,11 +46,6 @@ Route::middleware(['auth:sanctum', 'shule.tenancy'])->group(function () {
         Route::get('/reports/term-summary', [\App\Http\Controllers\Api\V1\ShuleYetu\Finance\ReportController::class, 'termSummary']);
     });
 
-    /*
-    |--------------------------------------------------------------
-    | Communication
-    |--------------------------------------------------------------
-    */
     Route::prefix('/v1/shule-yetu/communication')->group(function () {
         Route::get('/threads', [\App\Http\Controllers\Api\V1\ShuleYetu\Communication\MessageController::class, 'threads']);
         Route::get('/threads/{threadId}/messages', [\App\Http\Controllers\Api\V1\ShuleYetu\Communication\MessageController::class, 'messages']);
@@ -111,11 +57,6 @@ Route::middleware(['auth:sanctum', 'shule.tenancy'])->group(function () {
         Route::post('/threads', [\App\Http\Controllers\Api\V1\ShuleYetu\Communication\MessageController::class, 'createThread']);
     });
 
-    /*
-    |--------------------------------------------------------------
-    | AI (K1 Engine)
-    |--------------------------------------------------------------
-    */
     Route::prefix('/v1/shule-yetu/ai')->middleware(['auth:sanctum', 'shule.tenancy'])->group(function () {
         Route::post('/students/{student}/predict', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\AiController::class, 'predict']);
         Route::post('/students/{student}/risk', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\AiController::class, 'risk']);
@@ -123,11 +64,6 @@ Route::middleware(['auth:sanctum', 'shule.tenancy'])->group(function () {
         Route::post('/students/{student}/learning-plan', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\AiController::class, 'learningPlan']);
     });
 
-    /*
-    |--------------------------------------------------------------
-    | Teacher AI (Lesson Plans, Schemes, Rubrics, Activities)
-    |--------------------------------------------------------------
-    */
     Route::prefix('/v1/shule-yetu/ai/teacher')->middleware(['auth:sanctum', 'shule.tenancy'])->group(function () {
         Route::post('/lesson-plan', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\TeacherController::class, 'lessonPlan']);
         Route::post('/scheme-of-work', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\TeacherController::class, 'schemeOfWork']);
@@ -135,11 +71,6 @@ Route::middleware(['auth:sanctum', 'shule.tenancy'])->group(function () {
         Route::post('/activities', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\TeacherController::class, 'activities']);
     });
 
-    /*
-    |--------------------------------------------------------------
-    | Learning Loop (Teacher Feedback, Outcomes, Profiles, Drift)
-    |--------------------------------------------------------------
-    */
     Route::prefix('/v1/shule-yetu/ai/learning-loop')->middleware(['auth:sanctum', 'shule.tenancy'])->group(function () {
         Route::post('/teacher-feedback', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\LearningLoopController::class, 'teacherFeedback']);
         Route::post('/lesson-outcome', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\LearningLoopController::class, 'lessonOutcome']);
@@ -147,11 +78,6 @@ Route::middleware(['auth:sanctum', 'shule.tenancy'])->group(function () {
         Route::get('/drift-report/{school}', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\LearningLoopController::class, 'driftReport']);
     });
 
-    /*
-    |--------------------------------------------------------------
-    | National Intelligence (Benchmarks, County, Trends)
-    |--------------------------------------------------------------
-    */
     Route::prefix('/v1/shule-yetu/ai/national')->middleware(['auth:sanctum', 'shule.tenancy'])->group(function () {
         Route::get('/school-benchmark', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\NationalController::class, 'schoolBenchmark']);
         Route::get('/county-performance', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\NationalController::class, 'countyPerformance']);
@@ -159,33 +85,18 @@ Route::middleware(['auth:sanctum', 'shule.tenancy'])->group(function () {
         Route::get('/national-report', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\NationalController::class, 'nationalReport']);
     });
 
-    /*
-    |--------------------------------------------------------------
-    | Admin Intelligence (Dashboard, Staff, Curriculum)
-    |--------------------------------------------------------------
-    */
     Route::prefix('/v1/shule-yetu/ai/admin')->middleware(['auth:sanctum', 'shule.tenancy'])->group(function () {
         Route::get('/school-dashboard/{school}', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\AdminDashboardController::class, 'schoolDashboard']);
         Route::get('/staff-performance/{school}', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\AdminDashboardController::class, 'staffPerformance']);
         Route::get('/curriculum-efficiency/{school}', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\AdminDashboardController::class, 'curriculumEfficiency']);
     });
 
-    /*
-    |--------------------------------------------------------------
-    | Parent Intelligence (Reports, Interventions, Progress)
-    |--------------------------------------------------------------
-    */
     Route::prefix('/v1/shule-yetu/ai/parent')->middleware(['auth:sanctum', 'shule.tenancy'])->group(function () {
         Route::get('/student-report/{student}', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\ParentDashboardController::class, 'studentReport']);
         Route::post('/home-intervention', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\ParentDashboardController::class, 'homeIntervention']);
         Route::get('/progress-summary/{student}', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\ParentDashboardController::class, 'progressSummary']);
     });
 
-    /*
-    |--------------------------------------------------------------
-    | Teacher Portal (Lesson Templates, Schemes, Assessments, Policy)
-    |--------------------------------------------------------------
-    */
     Route::prefix('/v1/shule-yetu/ai/teacher-portal')->middleware(['auth:sanctum', 'shule.tenancy'])->group(function () {
         Route::get('/templates', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\TeacherPortalController::class, 'getTemplates']);
         Route::post('/templates', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\TeacherPortalController::class, 'saveTemplate']);
@@ -209,11 +120,6 @@ Route::middleware(['auth:sanctum', 'shule.tenancy'])->group(function () {
         Route::post('/policy/forecast', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\TeacherPortalController::class, 'forecastEducation']);
     });
 
-    /*
-    |--------------------------------------------------------------
-    | Student Portal (Dashboard, AI Assistant, Learning, Assignments, Homework, Exams, Competency, Goals, Clubs)
-    |--------------------------------------------------------------
-    */
     Route::prefix('/v1/shule-yetu/ai/student')->middleware(['auth:sanctum', 'shule.tenancy'])->group(function () {
         Route::get('/dashboard/{student}', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\StudentPortalController::class, 'dashboard']);
         Route::get('/adapt/{student}', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\StudentPortalController::class, 'adapt']);
@@ -242,6 +148,25 @@ Route::middleware(['auth:sanctum', 'shule.tenancy'])->group(function () {
         Route::post('/wellbeing', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\StudentPortalController::class, 'wellbeingRequest']);
         Route::get('/leaderboard/{school}', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\StudentPortalController::class, 'leaderboard']);
         Route::get('/badges/{student}', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\StudentPortalController::class, 'badges']);
+    });
+
+    Route::prefix('/v1/shule-yetu/ai/parent-portal')->middleware(['auth:sanctum', 'shule.tenancy'])->group(function () {
+        Route::get('/home/{parent}', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\ParentPortalController::class, 'home']);
+        Route::post('/switch/{parent}/{child}', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\ParentPortalController::class, 'switch']);
+        Route::get('/live-status/{student}', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\ParentPortalController::class, 'liveStatus']);
+        Route::get('/bus/{bus}', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\ParentPortalController::class, 'busLocation']);
+        Route::post('/pickup', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\ParentPortalController::class, 'confirmPickup']);
+        Route::post('/dropoff', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\ParentPortalController::class, 'confirmDropoff']);
+        Route::get('/route/{student}', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\ParentPortalController::class, 'routeHistory']);
+        Route::get('/trip/{trip}', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\ParentPortalController::class, 'trip']);
+        Route::get('/trip-photos/{trip}', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\ParentPortalController::class, 'tripPhotos']);
+        Route::get('/insights/{student}', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\ParentPortalController::class, 'insights']);
+        Route::get('/statement/{student}', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\ParentPortalController::class, 'statement']);
+        Route::get('/payments/{student}', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\ParentPortalController::class, 'paymentHistory']);
+        Route::get('/messages/{parent}', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\ParentPortalController::class, 'messages']);
+        Route::post('/send-message', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\ParentPortalController::class, 'sendMessage']);
+        Route::get('/wellness/{student}', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\ParentPortalController::class, 'wellness']);
+        Route::get('/attendance/{student}', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\ParentPortalController::class, 'attendanceSummary']);
     });
 
 });
