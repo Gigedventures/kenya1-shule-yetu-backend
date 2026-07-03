@@ -242,4 +242,28 @@ Route::middleware(['auth:sanctum', 'shule.tenancy'])->group(function () {
         ]);
     });
 
+    /*
+    |--------------------------------------------------------------
+    | Learning Loop (Teacher Feedback, Outcomes, Profiles, Drift)
+    |--------------------------------------------------------------
+    */
+    Route::prefix('/v1/shule-yetu/ai/learning-loop')->middleware(['auth:sanctum', 'shule.tenancy'])->group(function () {
+        Route::post('/teacher-feedback', [
+            \App\Http\Controllers\Api\V1\ShuleYetu\Ai\LearningLoopController::class,
+            'teacherFeedback'
+        ]);
+        Route::post('/lesson-outcome', [
+            \App\Http\Controllers\Api\V1\ShuleYetu\Ai\LearningLoopController::class,
+            'lessonOutcome'
+        ]);
+        Route::get('/school-profile/{school}', [
+            \App\Http\Controllers\Api\V1\ShuleYetu\Ai\LearningLoopController::class,
+            'schoolProfile'
+        ]);
+        Route::get('/drift-report/{school}', [
+            \App\Http\Controllers\Api\V1\ShuleYetu\Ai\LearningLoopController::class,
+            'driftReport'
+        ]);
+    });
+
 });
