@@ -5,6 +5,8 @@ import '../../../data/mock_data.dart';
 import '../../../data/mock_users.dart';
 import '../../../models/transcript_models.dart';
 import '../../../services/transcript_service.dart';
+import '../../../models/fee_models.dart';
+import '../../../services/fee_service.dart';
 import '../../../widgets/k1_bottom_nav.dart';
 import '../../../widgets/k1_top_bar.dart';
 
@@ -84,7 +86,7 @@ class _TertiaryStudentDashboardScreenState extends State<TertiaryStudentDashboar
                               _ResultsTab(data: data, student: widget.student),
                               _TimetableTab(data: data),
                               const _AiTutorTab(),
-                              const _FinanceTab(),
+                              _FinanceTab(student: widget.student),
                             ],
                           ),
                         ),
@@ -494,27 +496,98 @@ class _AiTutorTab extends StatelessWidget {
   }
 }
 
-class _FinanceTab extends StatelessWidget {
-  const _FinanceTab();
+class _FinanceTab extends StatefulWidget {
+  const _FinanceTab({required this.student});
+
+  final Student student;
+
+  @override
+  State<_FinanceTab> createState() => _FinanceTabState();
+}
+
+class _FinanceTabState extends State<_FinanceTab> {
+  late final FeeService _feeService;
+  StudentStatement? _statement;
+  bool _loading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _feeService = FeeService(
+      baseUrl: 'http://localhost:8000/api',
+      tokenProvider: () async => null,
+    );
+    _loadStatement();
+  }
+
+  Future<void> _loadStatement() async {
+    try {
+      final statement = await _feeService.getStudentStatement(
+        widget.student.id.toString(),
+      );
+      if (mounted) {
+        setState(() {
+          _statement = statement;
+          _loading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = e.toString();
+          _loading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_loading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return ListView(
       padding: const EdgeInsets.only(bottom: 16),
-      children: const [
+      children: [
         _DarkPanel(
           title: 'Finance',
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Outstanding balance: KES 12,000', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800)),
-              SizedBox(height: 4),
-              Text('Next deadline: 20 Mar 2026', style: TextStyle(color: Color(0xFFC4D2E6))),
-              SizedBox(height: 8),
-              Text('TODO(backend): wire invoices, payments, and receipts API.', style: TextStyle(color: Color(0xFF9EB4D0))),
-            ],
-          ),
+          child: _buildContent(),
         ),
+      ],
+    );
+  }
+
+  Widget _buildContent() {
+    if (_error != null || _statement == null) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (_error != null)
+            Text('Error: $_error', style: const TextStyle(color: Color(0xFFFF6B6B))),
+          if (_statement == null)
+            const Text('No statement data available', style: TextStyle(color: Color(0xFF9EB4D0))),
+        ],
+      );
+    }
+
+    final statement = _statement!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Outstanding balance: KES ${statement.outstandingBalance.toStringAsFixed(0)}',
+            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800)),
+        const SizedBox(height: 4),
+        Text('Total billed: KES ${statement.totalBilled.toStringAsFixed(0)}',
+            style: const TextStyle(color: Color(0xFFC4D2E6))),
+        const SizedBox(height: 4),
+        Text('Total paid: KES ${statement.totalPaid.toStringAsFixed(0)}',
+            style: const TextStyle(color: Color(0xFFC4D2E6))),
+        const SizedBox(height: 8),
+        if (statement.bills.isNotEmpty)
+          Text('${statement.bills.length} bills pending',
+              style: const TextStyle(color: Color(0xFF9EB4D0))),
       ],
     );
   }
