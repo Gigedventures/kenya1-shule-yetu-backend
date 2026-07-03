@@ -178,7 +178,7 @@ class MockData {
     ('Algorithms', '2:00 PM - 4:00 PM', 'Lecture Hall 3'),
   ];
 
-  // TODO(backend): fetch CBC layer-aware dashboard payload from Shule Yetu API.
+  // CBC layer-aware dashboard data — replace with real API call when backend is ready.
   static const Map<CbcLayer, JuniorLayerData> juniorLayerData = {
     CbcLayer.pp1Pp2: JuniorLayerData(
       layerTitle: 'PP1-PP2',
@@ -293,7 +293,7 @@ class MockData {
     ),
   };
 
-  // TODO(backend): return senior dashboard sections from student profile APIs.
+  // Senior dashboard data — replace with real API call when backend is ready.
   static const SeniorData seniorData = SeniorData(
     studentName: 'Kelvin Mwangi',
     program: 'Year 2 | BSc. Computer Science',
