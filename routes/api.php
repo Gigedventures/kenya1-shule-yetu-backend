@@ -266,4 +266,68 @@ Route::middleware(['auth:sanctum', 'shule.tenancy'])->group(function () {
         ]);
     });
 
+    /*
+    |--------------------------------------------------------------
+    | National Intelligence (Benchmarks, County, Trends)
+    |--------------------------------------------------------------
+    */
+    Route::prefix('/v1/shule-yetu/ai/national')->middleware(['auth:sanctum', 'shule.tenancy'])->group(function () {
+        Route::get('/school-benchmark', [
+            \App\Http\Controllers\Api\V1\ShuleYetu\Ai\NationalController::class,
+            'schoolBenchmark'
+        ]);
+        Route::get('/county-performance', [
+            \App\Http\Controllers\Api\V1\ShuleYetu\Ai\NationalController::class,
+            'countyPerformance'
+        ]);
+        Route::get('/national-trends', [
+            \App\Http\Controllers\Api\V1\ShuleYetu\Ai\NationalController::class,
+            'nationalTrends'
+        ]);
+        Route::get('/national-report', [
+            \App\Http\Controllers\Api\V1\ShuleYetu\Ai\NationalController::class,
+            'nationalReport'
+        ]);
+    });
+
+    /*
+    |--------------------------------------------------------------
+    | Admin Intelligence (Dashboard, Staff, Curriculum)
+    |--------------------------------------------------------------
+    */
+    Route::prefix('/v1/shule-yetu/ai/admin')->middleware(['auth:sanctum', 'shule.tenancy'])->group(function () {
+        Route::get('/school-dashboard/{school}', [
+            \App\Http\Controllers\Api\V1\ShuleYetu\Ai\AdminDashboardController::class,
+            'schoolDashboard'
+        ]);
+        Route::get('/staff-performance/{school}', [
+            \App\Http\Controllers\Api\V1\ShuleYetu\Ai\AdminDashboardController::class,
+            'staffPerformance'
+        ]);
+        Route::get('/curriculum-efficiency/{school}', [
+            \App\Http\Controllers\Api\V1\ShuleYetu\Ai\AdminDashboardController::class,
+            'curriculumEfficiency'
+        ]);
+    });
+
+    /*
+    |--------------------------------------------------------------
+    | Parent Intelligence (Reports, Interventions, Progress)
+    |--------------------------------------------------------------
+    */
+    Route::prefix('/v1/shule-yetu/ai/parent')->middleware(['auth:sanctum', 'shule.tenancy'])->group(function () {
+        Route::get('/student-report/{student}', [
+            \App\Http\Controllers\Api\V1\ShuleYetu\Ai\ParentDashboardController::class,
+            'studentReport'
+        ]);
+        Route::post('/home-intervention', [
+            \App\Http\Controllers\Api\V1\ShuleYetu\Ai\ParentDashboardController::class,
+            'homeIntervention'
+        ]);
+        Route::get('/progress-summary/{student}', [
+            \App\Http\Controllers\Api\V1\ShuleYetu\Ai\ParentDashboardController::class,
+            'progressSummary'
+        ]);
+    });
+
 });
