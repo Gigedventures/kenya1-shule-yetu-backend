@@ -330,4 +330,32 @@ Route::middleware(['auth:sanctum', 'shule.tenancy'])->group(function () {
         ]);
     });
 
+    /*
+    |--------------------------------------------------------------
+    | Teacher Portal (Lesson Templates, Schemes, Assessments, Policy)
+    |--------------------------------------------------------------
+    */
+    Route::prefix('/v1/shule-yetu/ai/teacher-portal')->middleware(['auth:sanctum', 'shule.tenancy'])->group(function () {
+        Route::get('/templates', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\TeacherPortalController::class, 'getTemplates']);
+        Route::post('/templates', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\TeacherPortalController::class, 'saveTemplate']);
+        Route::post('/templates/{id}/versionize', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\TeacherPortalController::class, 'versionizeTemplate']);
+        Route::post('/templates/{id}/reuse/{classId}', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\TeacherPortalController::class, 'reuseTemplate']);
+        Route::post('/scheme/generate', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\TeacherPortalController::class, 'autoGenerateSoW']);
+        Route::post('/scheme/{id}/reorder', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\TeacherPortalController::class, 'reorderSoW']);
+        Route::get('/scheme/{id}/progress', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\TeacherPortalController::class, 'trackSoWProgress']);
+        Route::post('/attendance', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\TeacherPortalController::class, 'trackAttendance']);
+        Route::get('/students/{student}/engagement', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\TeacherPortalController::class, 'scoreEngagement']);
+        Route::post('/students/{student}/notes', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\TeacherPortalController::class, 'addNote']);
+        Route::post('/students/{student}/groups', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\TeacherPortalController::class, 'groupStudents']);
+        Route::post('/q/generate', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\TeacherPortalController::class, 'generateQuestions']);
+        Route::post('/paper/build', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\TeacherPortalController::class, 'buildPaper']);
+        Route::post('/exam/{exam}/grade', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\TeacherPortalController::class, 'autoGrade']);
+        Route::get('/students/{student}/profile', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\TeacherPortalController::class, 'studentProfile']);
+        Route::post('/message', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\TeacherPortalController::class, 'sendMessage']);
+        Route::post('/broadcast', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\TeacherPortalController::class, 'broadcast']);
+        Route::get('/teacher/{teacher}/performance', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\TeacherPortalController::class, 'teacherPerformance']);
+        Route::post('/policy/simulate', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\TeacherPortalController::class, 'simulatePolicy']);
+        Route::post('/policy/forecast', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\TeacherPortalController::class, 'forecastEducation']);
+    });
+
 });
