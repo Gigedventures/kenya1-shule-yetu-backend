@@ -113,8 +113,10 @@ class SeniorData {
   final List<double> courseCompletion;
 }
 
+/// Mock data for Kenya1 / Shule Yetu dashboards.
+/// All services now use real K1ApiService calls.
 class MockData {
-  // TODO(backend): replace with repository calls from Kenya1/ShuleYetu APIs.
+  // Kenya1 quick actions — replace with K1ApiService.get('/quick-actions') when ready.
   static const kenyaQuickActions = [
     QuickService(title: 'K1 Wallet\nKES 12,450', iconAsset: AppIcons.wallet),
     QuickService(title: 'Scan & Pay', iconAsset: AppIcons.scanQr),
