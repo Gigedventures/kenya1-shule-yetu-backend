@@ -218,4 +218,28 @@ Route::middleware(['auth:sanctum', 'shule.tenancy'])->group(function () {
         ]);
     });
 
+    /*
+    |--------------------------------------------------------------
+    | Teacher AI (Lesson Plans, Schemes, Rubrics, Activities)
+    |--------------------------------------------------------------
+    */
+    Route::prefix('/v1/shule-yetu/ai/teacher')->middleware(['auth:sanctum', 'shule.tenancy'])->group(function () {
+        Route::post('/lesson-plan', [
+            \App\Http\Controllers\Api\V1\ShuleYetu\Ai\TeacherController::class,
+            'lessonPlan'
+        ]);
+        Route::post('/scheme-of-work', [
+            \App\Http\Controllers\Api\V1\ShuleYetu\Ai\TeacherController::class,
+            'schemeOfWork'
+        ]);
+        Route::post('/rubric', [
+            \App\Http\Controllers\Api\V1\ShuleYetu\Ai\TeacherController::class,
+            'rubric'
+        ]);
+        Route::post('/activities', [
+            \App\Http\Controllers\Api\V1\ShuleYetu\Ai\TeacherController::class,
+            'activities'
+        ]);
+    });
+
 });
