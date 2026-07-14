@@ -27,7 +27,7 @@ class RiskAssessmentCard extends StatelessWidget {
         color: K1Colors.cardBg ?? const Color(0xFF1A2438),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: riskColor.withOpacity(0.3),
+          color: riskColor.withValues(alpha: 0.3),
           width: 1.5,
         ),
       ),
@@ -48,7 +48,7 @@ class RiskAssessmentCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: riskColor.withOpacity(0.2),
+                  color: riskColor.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -131,10 +131,10 @@ class _RiskLevel extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: switch (level) {
-          'low' => Colors.green.withOpacity(0.2),
-          'medium' => Colors.orange.withOpacity(0.2),
-          'high' => Colors.red.withOpacity(0.2),
-          _ => Colors.grey.withOpacity(0.2),
+          'low' => Colors.green.withValues(alpha: 0.2),
+          'medium' => Colors.orange.withValues(alpha: 0.2),
+          'high' => Colors.red.withValues(alpha: 0.2),
+          _ => Colors.grey.withValues(alpha: 0.2),
         },
         borderRadius: BorderRadius.circular(6),
       ),

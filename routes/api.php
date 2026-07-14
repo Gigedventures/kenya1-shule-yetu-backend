@@ -37,6 +37,10 @@ Route::middleware(['auth:sanctum', 'shule.tenancy'])->group(function () {
         Route::get('/students/{student}/transcript', [\App\Http\Controllers\Api\V1\ShuleYetu\TranscriptController::class, 'studentTranscript']);
     });
 
+    Route::prefix('/v1/shule-yetu/senior')->group(function () {
+        Route::get('/dashboard/{student}', [\App\Http\Controllers\Api\V1\ShuleYetu\Ai\StudentPortalController::class, 'seniorDashboard']);
+    });
+
     Route::prefix('/v1/shule-yetu/finance')->group(function () {
         Route::get('/structures', [\App\Http\Controllers\Api\V1\ShuleYetu\Finance\FeeStructureController::class, 'index']);
         Route::post('/structures', [\App\Http\Controllers\Api\V1\ShuleYetu\Finance\FeeStructureController::class, 'store']);
@@ -48,6 +52,7 @@ Route::middleware(['auth:sanctum', 'shule.tenancy'])->group(function () {
 
     Route::prefix('/v1/shule-yetu/communication')->group(function () {
         Route::get('/threads', [\App\Http\Controllers\Api\V1\ShuleYetu\Communication\MessageController::class, 'threads']);
+        Route::get('/inbox', [\App\Http\Controllers\Api\V1\ShuleYetu\Communication\MessageController::class, 'inbox']);
         Route::get('/threads/{threadId}/messages', [\App\Http\Controllers\Api\V1\ShuleYetu\Communication\MessageController::class, 'messages']);
         Route::post('/threads/{threadId}/messages', [\App\Http\Controllers\Api\V1\ShuleYetu\Communication\MessageController::class, 'send']);
         Route::post('/messages/{messageId}/read', [\App\Http\Controllers\Api\V1\ShuleYetu\Communication\MessageController::class, 'markRead']);
@@ -55,6 +60,26 @@ Route::middleware(['auth:sanctum', 'shule.tenancy'])->group(function () {
         Route::post('/announcements', [\App\Http\Controllers\Api\V1\ShuleYetu\Communication\AnnouncementController::class, 'store']);
         Route::get('/contacts', [\App\Http\Controllers\Api\V1\ShuleYetu\Communication\MessageController::class, 'contacts']);
         Route::post('/threads', [\App\Http\Controllers\Api\V1\ShuleYetu\Communication\MessageController::class, 'createThread']);
+    });
+
+    // Student API endpoints
+    Route::prefix('/v1/student')->middleware(['auth:sanctum', 'shule.tenancy'])->group(function () {
+        Route::get('/assignments', [\App\Http\Controllers\Api\V1\ShuleYetu\StudentController::class, 'assignments']);
+        Route::get('/attendance', [\App\Http\Controllers\Api\V1\ShuleYetu\StudentController::class, 'attendance']);
+        Route::get('/classes', [\App\Http\Controllers\Api\V1\ShuleYetu\StudentController::class, 'classes']);
+    });
+
+    // Teacher API endpoints
+    Route::prefix('/v1/teacher')->middleware(['auth:sanctum', 'shule.tenancy'])->group(function () {
+        Route::get('/assignments', [\App\Http\Controllers\Api\V1\ShuleYetu\TeacherController::class, 'assignments']);
+        Route::get('/attendance', [\App\Http\Controllers\Api\V1\ShuleYetu\TeacherController::class, 'attendance']);
+        Route::post('/attendance', [\App\Http\Controllers\Api\V1\ShuleYetu\TeacherController::class, 'markAttendance']);
+        Route::get('/attendance/stats', [\App\Http\Controllers\Api\V1\ShuleYetu\TeacherController::class, 'attendanceStats']);
+    });
+
+    // Messages inbox (unified)
+    Route::prefix('/v1/messages')->middleware(['auth:sanctum', 'shule.tenancy'])->group(function () {
+        Route::get('/inbox', [\App\Http\Controllers\Api\V1\ShuleYetu\Communication\MessageController::class, 'inbox']);
     });
 
     Route::prefix('/v1/shule-yetu/ai')->middleware(['auth:sanctum', 'shule.tenancy'])->group(function () {

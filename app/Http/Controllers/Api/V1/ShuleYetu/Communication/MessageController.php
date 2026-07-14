@@ -11,6 +11,7 @@ use App\Modules\ShuleYetu\Communication\Services\CommunicationService;
 use App\Modules\ShuleYetu\Models\ShuleMessage;
 use App\Modules\ShuleYetu\Support\Tenancy\SchoolContext;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
 
@@ -26,7 +27,7 @@ class MessageController extends Controller
         // Get unique conversation partners for the current user
         // Using a subquery to get the latest message per conversation
         $threads = DB::table('shule_messages as m')
-            ->join('shule_messages as latest', function ($join) use ($userId) {
+            ->join('shule_messages as latest', function ($join) use ($userId, $schoolId) {
                 $join->on('latest.sender_user_id', '=', 'm.sender_user_id')
                     ->where('latest.recipient_user_id', '=', 'm.recipient_user_id')
                     ->where('m.school_id', '=', $schoolId);
@@ -261,6 +262,134 @@ class MessageController extends Controller
             'sender' => $currentUser,
             'recipient' => $recipient,
             'body' => $message->body,
+        ]);
+    }
+
+    public function inbox(Request $request): JsonResponse
+    {
+        $this->authorizePermission('communication.view');
+
+        $schoolId = app(SchoolContext::class)->requireId();
+        $userId = auth()->id();
+        $user = auth()->user();
+
+        // Get threads with full details
+        $threads = DB::table('shule_messages as m')
+            ->join('shule_messages as latest', function ($join) use ($userId, $schoolId) {
+                $join->on('latest.sender_user_id', '=', 'm.sender_user_id')
+                    ->where('latest.recipient_user_id', '=', 'm.recipient_user_id')
+                    ->where('m.school_id', '=', $schoolId);
+            })
+            ->where('m.school_id', $schoolId)
+            ->where(function ($q) use ($userId) {
+                $q->where('m.sender_user_id', $userId)
+                    ->orWhere('m.recipient_user_id', $userId);
+            })
+            ->where('latest.id', '=', DB::raw('(
+                SELECT MAX(id) FROM shule_messages m2
+                WHERE m2.school_id = m.school_id
+                AND ((m2.sender_user_id = m.sender_user_id AND m2.recipient_user_id = m.recipient_user_id)
+                    OR (m2.sender_user_id = m.recipient_user_id AND m2.recipient_user_id = m.sender_user_id))
+            )'))
+            ->select([
+                'm.id',
+                'm.sender_user_id',
+                'm.recipient_user_id',
+                'm.body',
+                'm.subject',
+                'm.read_at',
+                'm.created_at',
+                'm.updated_at',
+            ])
+            ->distinct()
+            ->orderByDesc('latest.created_at')
+            ->paginate($request->integer('per_page', 20));
+
+        $threadData = [];
+        $totalUnread = 0;
+        foreach ($threads->getCollection() as $msg) {
+            $otherUserId = (int) $msg->sender_user_id === $userId
+                ? (int) $msg->recipient_user_id
+                : (int) $msg->sender_user_id;
+
+            $otherUser = User::find($otherUserId);
+            if (!$otherUser) {
+                continue;
+            }
+
+            $unreadCount = ShuleMessage::query()
+                ->where('school_id', $schoolId)
+                ->where('sender_user_id', $otherUserId)
+                ->where('recipient_user_id', $userId)
+                ->whereNull('read_at')
+                ->count();
+
+            $totalUnread += $unreadCount;
+            $isSender = (int) $msg->sender_user_id === $userId;
+            $threadData[] = [
+                'id' => "thread-{$userId}-{$otherUserId}",
+                'participant' => [
+                    'id' => $otherUser->id,
+                    'name' => $otherUser->name,
+                    'role' => $otherUser->getRoleNames()->first() ?? 'User',
+                    'avatar_url' => $otherUser->avatar_url ?? null,
+                    'is_online' => false, // TODO: presence
+                ],
+                'last_message' => $msg->body,
+                'last_message_time' => $msg->updated_at?->toDateTimeString() ?? $msg->created_at?->toDateTimeString(),
+                'unread_count' => $unreadCount,
+                'subject' => $msg->subject,
+                'is_sender' => $isSender,
+            ];
+        }
+
+        // Get announcements for the user
+        $announcements = \App\Modules\ShuleYetu\Models\ShuleAnnouncement::query()
+            ->where('school_id', $schoolId)
+            ->where('is_published', true)
+            ->where(function ($q) use ($userId, $user) {
+                $q->where('target_audience', 'all')
+                    ->orWhere('target_audience', $user->getRoleNames()->first())
+                    ->orWhereJsonContains('target_user_ids', $userId);
+            })
+            ->where('publish_at', '<=', now())
+            ->where(function ($q) {
+                $q->whereNull('expire_at')->orWhere('expire_at', '>', now());
+            })
+            ->orderByDesc('publish_at')
+            ->limit(5)
+            ->get(['id', 'title', 'body', 'publish_at', 'priority', 'author_id'])
+            ->map(function ($ann) {
+                return [
+                    'id' => 'announcement-' . $ann->id,
+                    'type' => 'announcement',
+                    'title' => $ann->title,
+                    'body' => $ann->body,
+                    'time' => $ann->publish_at?->toDateTimeString(),
+                    'priority' => $ann->priority,
+                    'is_read' => false, // Could track read status
+                ];
+            });
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'threads' => $threadData,
+                'announcements' => $announcements,
+            ],
+            'meta' => [
+                'pagination' => [
+                    'current_page' => $threads->currentPage(),
+                    'per_page' => $threads->perPage(),
+                    'total' => $threads->total(),
+                    'last_page' => $threads->lastPage(),
+                ],
+                'summary' => [
+                    'total_threads' => $threads->total(),
+                    'total_unread' => $totalUnread,
+                    'unread_announcements' => $announcements->count(),
+                ],
+            ],
         ]);
     }
 

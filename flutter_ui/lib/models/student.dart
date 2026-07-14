@@ -67,4 +67,6 @@ class Student {
 
   SchoolLevel get level => schoolLevel;
   SchoolLevel get school_level => schoolLevel;
+
+  String get fullName => name;
 }

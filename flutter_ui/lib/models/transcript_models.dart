@@ -19,8 +19,8 @@ class AcademicTranscript {
     );
   }
 
-  double get cumulativeAverage => cumulative.average;
-  int get totalTerms => cumulative.totalTerms;
+  double get cumulativeAverage => cumulative.average ?? 0.0;
+  int get totalTerms => cumulative.totalTerms ?? 0;
   double get gpa => cumulativeAverage;
 }
 

@@ -25,5 +25,15 @@ trait HasShuleRoles
     {
         app(ShuleRbacService::class)->giveDirectPermission($this, $permissionName);
     }
+
+    public function getRoleNames(): \Illuminate\Support\Collection
+    {
+        return \Illuminate\Support\Facades\DB::table("shule_model_has_roles as mhr")
+            ->join("shule_roles as r", "r.id", "=", "mhr.role_id")
+            ->where("mhr.user_id", $this->id)
+            ->where("mhr.school_id", app(\App\Modules\ShuleYetu\Support\Tenancy\SchoolContext::class)->requireId())
+            ->where("r.school_id", app(\App\Modules\ShuleYetu\Support\Tenancy\SchoolContext::class)->requireId())
+            ->pluck("r.name");
+    }
 }
 

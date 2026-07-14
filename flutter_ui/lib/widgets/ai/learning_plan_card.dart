@@ -37,7 +37,7 @@ class LearningPlanCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF5EA3FF).withOpacity(0.15),
+                  color: const Color(0xFF5EA3FF).withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -88,7 +88,7 @@ class _DayCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: const Color(0xFF2D3E5A).withOpacity(0.5),
+        color: const Color(0xFF2D3E5A).withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(

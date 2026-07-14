@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'app_router.dart';
+import 'services/k1_api_service.dart';
 import 'theme/app_theme.dart';
 
 void main() {
@@ -12,12 +14,18 @@ class ShuleYetuUiApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Kenya 1 / Shule Yetu UI',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light,
-      initialRoute: AppRouter.kenyaHome,
-      routes: AppRouter.routes,
+    return Provider<K1ApiService>(
+      create: (_) => K1ApiService(
+        baseUrl: const String.fromEnvironment('API_BASE_URL', defaultValue: 'http://localhost:8000'),
+        tokenProvider: () async => null,
+      ),
+      child: MaterialApp(
+        title: 'Kenya 1 / Shule Yetu UI',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.light,
+        initialRoute: AppRouter.kenyaHome,
+        routes: AppRouter.routes,
+      ),
     );
   }
 }

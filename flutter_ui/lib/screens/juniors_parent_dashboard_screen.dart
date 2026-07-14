@@ -333,7 +333,7 @@ class _LearningTab extends StatelessWidget {
           child: SegmentedButton<int>(
             showSelectedIcon: false,
             style: const ButtonStyle(
-              textStyle: MaterialStatePropertyAll(TextStyle(fontWeight: FontWeight.w700, fontSize: 12)),
+              textStyle: WidgetStatePropertyAll(TextStyle(fontWeight: FontWeight.w700, fontSize: 12)),
             ),
             segments: const [
               ButtonSegment(value: 0, label: Text('Daily Practice')),
@@ -667,7 +667,7 @@ class _FeesTabState extends State<_FeesTab> {
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
-              value: selectedMethod,
+              initialValue: selectedMethod,
               decoration: const InputDecoration(
                 labelText: 'Payment Method',
                 border: OutlineInputBorder(),

@@ -34,7 +34,7 @@ class ProgressStrip extends StatelessWidget {
             child: LinearProgressIndicator(
               value: value,
               minHeight: 8,
-              backgroundColor: Colors.white.withOpacity(0.35),
+              backgroundColor: Colors.white.withValues(alpha: 0.35),
               color: color,
             ),
           ),

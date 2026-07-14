@@ -1,7 +1,8 @@
 #!/bin/sh
 # This is a generated file; do not edit or check into version control.
-export "FLUTTER_ROOT=C:\flutter"
-export "FLUTTER_APPLICATION_PATH=C:\Users\nalen\shule-yetu-backend\flutter_ui"
+export "FLUTTER_ROOT=/home/nalen/flutter"
+export "FLUTTER_APPLICATION_PATH=/mnt/c/Users/nalen/shule-yetu-backend/flutter_ui"
+export "FLUTTER_FRAMEWORK_SWIFT_PACKAGE_PATH=/mnt/c/Users/nalen/shule-yetu-backend/flutter_ui/macos/Flutter/ephemeral/Packages/.packages/FlutterFramework"
 export "COCOAPODS_PARALLEL_CODE_SIGN=true"
 export "FLUTTER_BUILD_DIR=build"
 export "FLUTTER_BUILD_NAME=1.0.0"

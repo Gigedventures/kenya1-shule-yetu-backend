@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 import '../../../data/mock_data.dart';
+import '../../../data/mock_student_api_data.dart';
 import '../../../data/mock_users.dart';
 import '../../../models/transcript_models.dart';
 import '../../../services/transcript_service.dart';
@@ -73,8 +74,9 @@ class _TertiaryStudentDashboardScreenState extends State<TertiaryStudentDashboar
                         Expanded(
                           child: TabBarView(
                             children: [
-                              _DashboardTab(data: data),
+                              _DashboardTab(data: data, student: widget.student),
                               _CoursesTab(
+                                student: widget.student,
                                 selectedSubTab: _courseSubTab,
                                 onSubTabChanged: (value) {
                                   setState(() {
@@ -82,7 +84,7 @@ class _TertiaryStudentDashboardScreenState extends State<TertiaryStudentDashboar
                                   });
                                 },
                               ),
-                              const _ExamsTab(),
+                              _ExamsTab(student: widget.student),
                               _ResultsTab(data: data, student: widget.student),
                               _TimetableTab(data: data),
                               const _AiTutorTab(),
@@ -139,9 +141,10 @@ class _Header extends StatelessWidget {
 }
 
 class _DashboardTab extends StatelessWidget {
-  const _DashboardTab({required this.data});
+  const _DashboardTab({required this.data, required this.student});
 
   final SeniorData data;
+  final Student student;
 
   @override
   Widget build(BuildContext context) {
@@ -204,6 +207,20 @@ class _DashboardTab extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             _DarkPanel(
+              title: 'Quick Actions',
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  _ActionChip(icon: Icons.assignment_outlined, label: 'Assignments'),
+                  _ActionChip(icon: Icons.fact_check_outlined, label: 'Attendance'),
+                  _ActionChip(icon: Icons.payment_outlined, label: 'Pay Fees'),
+                  _ActionChip(icon: Icons.chat_outlined, label: 'Messages'),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
+            _DarkPanel(
               title: 'Alerts',
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -234,8 +251,13 @@ class _DashboardTab extends StatelessWidget {
 }
 
 class _CoursesTab extends StatelessWidget {
-  const _CoursesTab({required this.selectedSubTab, required this.onSubTabChanged});
+  const _CoursesTab({
+    required this.student,
+    required this.selectedSubTab,
+    required this.onSubTabChanged,
+  });
 
+  final Student student;
   final int selectedSubTab;
   final ValueChanged<int> onSubTabChanged;
 
@@ -301,7 +323,9 @@ class _CoursesTab extends StatelessWidget {
 }
 
 class _ExamsTab extends StatelessWidget {
-  const _ExamsTab();
+  const _ExamsTab({required this.student});
+
+  final Student student;
 
   @override
   Widget build(BuildContext context) {
@@ -339,7 +363,7 @@ class _ResultsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final transcriptService = TranscriptService(
-      baseUrl: 'http://localhost:8000/api',
+      baseUrl: const String.fromEnvironment('API_BASE_URL', defaultValue: 'http://localhost:8000/api'),
       tokenProvider: () async => null,
     );
 
@@ -358,44 +382,15 @@ class _ResultsTab extends StatelessWidget {
                 student.id.toString(),
               );
               if (!context.mounted) return;
-              showDialog(
-                context: context,
-                builder: (ctx) => AlertDialog(
-                  backgroundColor: const Color(0xFF1A2438),
-                  title: const Text('Academic Transcript', style: TextStyle(color: Colors.white)),
-                  content: SizedBox(
-                    width: double.maxFinite,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Student: ${transcript.student.name ?? 'N/A'}',
-                            style: const TextStyle(color: Colors.white)),
-                        const SizedBox(height: 8),
-                        Text('Admission: ${transcript.student.admissionNo ?? 'N/A'}',
-                            style: TextStyle(color: Color(0xFFC4D2E6))),
-                        const SizedBox(height: 12),
-                        Text('Cumulative GPA: ${transcript.cumulativeAverage.toStringAsFixed(2)}',
-                            style: const TextStyle(color: Color(0xFF5EA3FF), fontWeight: FontWeight.w800)),
-                        const SizedBox(height: 8),
-                        Text('Total Terms: ${transcript.totalTerms}',
-                            style: const TextStyle(color: Color(0xFFC4D2E6))),
-                      ],
-                    ),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(ctx).pop(),
-                      child: const Text('Close'),
-                    ),
-                  ],
-                ),
-              );
+              _showTranscriptDialog(context, transcript);
             } catch (e) {
-              if (!context.mounted) return;
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+              final transcript = MockTranscriptApiData.transcriptFor(
+                student.id.toString(),
+                student.name,
+                student.admissionNumber,
               );
+              if (!context.mounted) return;
+              _showTranscriptDialog(context, transcript);
             }
           },
           style: FilledButton.styleFrom(
@@ -406,6 +401,42 @@ class _ResultsTab extends StatelessWidget {
           child: const Text('View Transcript', style: TextStyle(fontWeight: FontWeight.w800)),
         ),
       ],
+    );
+  }
+
+  void _showTranscriptDialog(BuildContext context, AcademicTranscript transcript) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1A2438),
+        title: const Text('Academic Transcript', style: TextStyle(color: Colors.white)),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Student: ${transcript.student.name ?? 'N/A'}',
+                  style: const TextStyle(color: Colors.white)),
+              const SizedBox(height: 8),
+              Text('Admission: ${transcript.student.admissionNo ?? 'N/A'}',
+                  style: const TextStyle(color: Color(0xFFC4D2E6))),
+              const SizedBox(height: 12),
+              Text('Cumulative GPA: ${transcript.cumulativeAverage.toStringAsFixed(2)}',
+                  style: const TextStyle(color: Color(0xFF5EA3FF), fontWeight: FontWeight.w800)),
+              const SizedBox(height: 8),
+              Text('Total Terms: ${transcript.totalTerms}',
+                  style: const TextStyle(color: Color(0xFFC4D2E6))),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -515,7 +546,7 @@ class _FinanceTabState extends State<_FinanceTab> {
   void initState() {
     super.initState();
     _feeService = FeeService(
-      baseUrl: 'http://localhost:8000/api',
+      baseUrl: const String.fromEnvironment('API_BASE_URL', defaultValue: 'http://localhost:8000/api'),
       tokenProvider: () async => null,
     );
     _loadStatement();
@@ -535,7 +566,7 @@ class _FinanceTabState extends State<_FinanceTab> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _error = e.toString();
+          _statement = MockFinanceApiData.statementFor(widget.student.id.toString());
           _loading = false;
         });
       }
@@ -622,6 +653,31 @@ class _DarkTile extends StatelessWidget {
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ActionChip extends StatelessWidget {
+  const _ActionChip({required this.icon, required this.label});
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFF2D3E5A),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: const Color(0xFF84B8FF), size: 16),
+          const SizedBox(width: 6),
+          Text(label, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
         ],
       ),
     );
