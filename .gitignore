@@ -32,3 +32,14 @@ yarn-error.log
 # OS noise
 .DS_Store
 Thumbs.db
+# Flutter generated files
+flutter_ui/**/ephemeral/
+flutter_ui/**/.dart_tool/
+flutter_ui/build/
+flutter_ui/*.log
+
+# Local configs
+flutter_ui/android/local.properties
+
+# Backup files
+*.bak
